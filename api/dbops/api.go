@@ -2,8 +2,11 @@ package dbops
 
 import (
 	"log"
+	"time"
     "database/sql"
 	_ "github.com/go-sql-driver/mysql"
+	"/video_server/api/defs"
+	"/video_server/api/utils"
 )
 
 func AddUserCredential(loginName string,pwd string) error {
@@ -27,7 +30,7 @@ func GetUserCredential(loginName string) (string,error) {
 	}
 
 	var pwd string
-	stmtOut.QueryRow(loginName).Scan(&pwd)
+	err = stmtOut.QueryRow(loginName).Scan(&pwd)
 	if err != nil && err != sql.ErrNoRows {
 		return "",err
 	}
@@ -42,7 +45,39 @@ func DeleteUser(loginName string,pwd string) error {
 		return err
 	}
 
-	stmtDel.Exec(loginName,pwd) 
+	_,err = stmtDel.Exec(loginName,pwd) 
+	if err != nil {
+		return err
+	}
+
 	stmtDel.Close()
 	return nil
 }
+
+func AddNewVideo(aid int,name string)(*defs.VideoInfo,error){
+	vid,err := utils.NewUUID()
+	if err != nil {
+		return nil,err
+	}
+
+	t := time.Now()
+	ctime := t.Format("Jan 02 2006, 15:04:05")
+	stmtIns,err := dbConn.Prepare(`INSERT INTO video_info
+	(id,author_id,name,display_ctime) VALUES(?,?,?,?)`)
+
+	if err != nil {
+		return nil,err
+	}
+
+	_,err = stmtIns.Exec(vid,aid,name,ctime)
+	if err != nil {
+		return nil,err
+	}
+
+	res := &defs.VideoInfo{Id:vid,AuthorId:aid,Name:name,DisplayCtime:ctime}
+
+	defer stmtIns.Close()
+	return res,nil
+}
+
+func GetVideoInfo(vid string) (&defs.VideoInfo,error)
