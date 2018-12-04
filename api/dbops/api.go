@@ -5,8 +5,8 @@ import (
 	"time"
     "database/sql"
 	_ "github.com/go-sql-driver/mysql"
-	"/video_server/api/defs"
-	"/video_server/api/utils"
+	"video_server/api/defs"
+	"video_server/api/utils"
 )
 
 func AddUserCredential(loginName string,pwd string) error {
@@ -80,14 +80,14 @@ func AddNewVideo(aid int,name string)(*defs.VideoInfo,error){
 	return res,nil
 }
 
-func GetVideoInfo(vid string) (&defs.VideoInfo,error){
-	stmtOut,err := dbConn.Prepare("SELECT author_id,name,display_ctime FROM video_info WHERE id=?")
+func GetVideoInfo(vid string) (*defs.VideoInfo, error){
+	stmtOut, err := dbConn.Prepare("SELECT author_id,name,display_ctime FROM video_info WHERE id=?")
 
 	var aid int
 	var dct string
 	var name string
 
-	err = stmtOut.Query(vid).Scan(&aid,&name,&dct)
+	err = stmtOut.QueryRow(vid).Scan(&aid,&name,&dct)
 	if err != nil && err != sql.ErrNoRows{
 		return nil, err
 	}
@@ -98,7 +98,7 @@ func GetVideoInfo(vid string) (&defs.VideoInfo,error){
 
 	defer stmtOut.Close()
 
-	res := &defs.VideoInfo{Id:vid,AAuthorId:aid,Name:name,DisplayCtime:dct}
+	res := &defs.VideoInfo{Id:vid,AuthorId:aid,Name:name,DisplayCtime:dct}
 
 	return res,nil
 }
@@ -129,7 +129,7 @@ func AddNewComments (vid string,aid int,content string)error {
 		return err
 	}
 
-	_,err := stmtIns.Exce(id,vid,aid,content)
+	_,err = stmtIns.Exec(id,vid,aid,content)
 	if err != nil{
 		return err
 	}
@@ -138,7 +138,7 @@ func AddNewComments (vid string,aid int,content string)error {
 	return nil
 }
 
-func ListComments(vid string,from,to int,)( []*defs.Comments,error){
+func ListComments(vid string,from,to int,)( []*defs.Comment,error){
 	stmtOut, err := dbConn.Prepare(` SELECT comments.id, users.Login_name, comments.content FROM comments
 		INNER JOIN users ON comments.author_id = users.id
 		WHERE comments.video_id = ? AND comments.time > FROM_UNIXTIME(?) AND comments.time <= FROM_UNIXTIME(?)`)

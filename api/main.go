@@ -21,7 +21,6 @@ func (m middleWareHandler) ServerHTTP(w http.ResponseWriter, r *http.Request){
 }
 
 
-
 func RegisterHandlers() * httprouter.Router{
 	router := httprouter.New()
 

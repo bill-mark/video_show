@@ -3,9 +3,9 @@ package session
 import (
 	"time"
 	"sync"
-	"github.com/avenssi/video_server/api/defs"
-	"github.com/avenssi/video_server/api/dbops"
-	"github.com/avenssi/video_server/api/utils"
+	"video_server/api/defs"
+	"video_server/api/dbops"
+	"video_server/api/utils"
 )
 
 var sessionMap *sync.Map 

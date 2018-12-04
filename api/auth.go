@@ -2,7 +2,7 @@ package main
 
 import (
 	"net/http"
-	"/video_server/api/session"
+	"video_server/api/session"
 )
 
 var HEADER_FIELD_SESSION = "X-Session-Id"
